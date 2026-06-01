@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { createProduct, deleteProduct, getProducts, updateProduct } from '../api/fetchApi';
 import Button from '../components/Button';
 import Card from '../components/Card';
@@ -93,7 +92,6 @@ export default function Products() {
       label: '',
       render: (r) => (
         <div className="flex gap-2 text-sm">
-          <Link to={`/products/${r.id}`} className="text-indigo-600">View</Link>
           <button type="button" className="text-indigo-600" onClick={() => openEdit(r)}>Edit</button>
           <button type="button" className="text-red-600" onClick={async () => {
             if (!confirm('Delete?')) return;
@@ -114,7 +112,7 @@ export default function Products() {
 
   return (
     <div>
-      <PageHeader title="Products" action={<Button onClick={openAdd}>Add product</Button>} />
+      <PageHeader title="Products" action={<Button onClick={openAdd}>Add</Button>} />
       <Card>
         <Table columns={columns} rows={list} emptyText="No products" />
       </Card>

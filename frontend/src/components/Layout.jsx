@@ -1,76 +1,64 @@
-import { useState } from "react";
-import { NavLink, Outlet } from "react-router-dom";
+import { useState } from 'react';
+import { NavLink, Outlet } from 'react-router-dom';
 
-const links = [
-  { to: "/", label: "Dashboard", end: true },
-  { to: "/products", label: "Products" },
-  { to: "/customers", label: "Customers" },
-  { to: "/orders", label: "Orders" },
+const menu = [
+  { to: '/', label: 'Dashboard', end: true },
+  { to: '/products', label: 'Products' },
+  { to: '/customers', label: 'Customers' },
+  { to: '/orders', label: 'Orders' },
 ];
 
-function linkClass({ isActive }) {
-  return `mx-3 block rounded-md px-3 py-2.5 text-sm font-medium transition-colors ${
-    isActive
-      ? "bg-indigo-600 text-white"
-      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
-  }`;
-}
-
 export default function Layout() {
-  const [menuOpen, setMenuOpen] = useState(false);
-
-  const navLinks = (onNavigate) =>
-    links.map((item) => (
-      <NavLink
-        key={item.to}
-        to={item.to}
-        end={item.end}
-        className={linkClass}
-        onClick={onNavigate}
-      >
-        {item.label}
-      </NavLink>
-    ));
+  const [open, setOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-slate-50 lg:flex">
-      {/* Desktop sidebar */}
-      <aside className="hidden w-56 shrink-0 border-r border-slate-200 bg-white lg:flex lg:flex-col">
-        <div className="border-b border-slate-200 px-5 py-5">
-          <h1 className="text-base font-semibold text-slate-900">
-            Inventory Manager
-          </h1>
-          <p className="mt-0.5 text-xs text-slate-500">Orders & stock</p>
-        </div>
-        <nav className="flex flex-col gap-0.5 py-4">{navLinks()}</nav>
+    <div className="min-h-screen lg:flex">
+      <aside className="hidden w-52 border-r bg-white lg:block">
+        <div className="border-b px-4 py-4 font-semibold">Inventory</div>
+        <nav className="p-2">
+          {menu.map((m) => (
+            <NavLink
+              key={m.to}
+              to={m.to}
+              end={m.end}
+              className={({ isActive }) =>
+                `mb-1 block rounded px-3 py-2 text-sm ${isActive ? 'bg-indigo-600 text-white' : 'hover:bg-gray-100'}`
+              }
+            >
+              {m.label}
+            </NavLink>
+          ))}
+        </nav>
       </aside>
 
-      <div className="flex min-h-screen flex-1 flex-col">
-        {/* Mobile header */}
-        <header className="flex items-center justify-between border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
-          <div>
-            <p className="font-semibold text-slate-900">Inventory Manager</p>
-            <p className="text-xs text-slate-500">Orders & stock</p>
-          </div>
-          <button
-            type="button"
-            onClick={() => setMenuOpen((open) => !open)}
-            className="rounded-md border border-slate-300 bg-white px-3 py-1.5 text-sm font-medium text-slate-700 hover:bg-slate-50"
-          >
-            {menuOpen ? "Close" : "Menu"}
+      <div className="flex-1">
+        <header className="flex items-center justify-between border-b px-4 py-3 lg:hidden">
+          <span className="font-semibold">Inventory</span>
+          <button type="button" className="rounded border px-3 py-1 text-sm" onClick={() => setOpen(!open)}>
+            Menu
           </button>
         </header>
 
-        {menuOpen && (
-          <nav className="border-b border-slate-200 bg-white py-2 lg:hidden">
-            {navLinks(() => setMenuOpen(false))}
+        {open && (
+          <nav className="border-b p-2 lg:hidden">
+            {menu.map((m) => (
+              <NavLink
+                key={m.to}
+                to={m.to}
+                end={m.end}
+                onClick={() => setOpen(false)}
+                className={({ isActive }) =>
+                  `mb-1 block rounded px-3 py-2 text-sm ${isActive ? 'bg-indigo-600 text-white' : 'hover:bg-gray-100'}`
+                }
+              >
+                {m.label}
+              </NavLink>
+            ))}
           </nav>
         )}
 
-        <main className="flex-1 p-4 sm:p-6">
-          <div className="mx-auto max-w-7xl">
-            <Outlet />
-          </div>
+        <main className="p-4">
+          <Outlet />
         </main>
       </div>
     </div>

@@ -1,4 +1,3 @@
-"""Entry point: python run.py  OR  gunicorn run:app"""
 from app import create_app
 
 app = create_app()

@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
 import { createCustomer, deleteCustomer, getCustomers } from '../api/fetchApi';
 import Button from '../components/Button';
 import Card from '../components/Card';
@@ -66,9 +65,7 @@ export default function Customers() {
       key: 'actions',
       label: '',
       render: (r) => (
-        <div className="flex gap-2 text-sm">
-          <Link to={`/customers/${r.id}`} className="text-indigo-600">View</Link>
-          <button type="button" className="text-red-600" onClick={async () => {
+        <button type="button" className="text-sm text-red-600" onClick={async () => {
           if (!confirm('Delete?')) return;
           try {
             await deleteCustomer(r.id);
@@ -78,7 +75,6 @@ export default function Customers() {
             showToast(ex.message, 'error');
           }
         }}>Delete</button>
-        </div>
       ),
     },
   ];
@@ -87,7 +83,7 @@ export default function Customers() {
 
   return (
     <div>
-      <PageHeader title="Customers" action={<Button onClick={() => setModal(true)}>Add customer</Button>} />
+      <PageHeader title="Customers" action={<Button onClick={() => setModal(true)}>Add</Button>} />
       <Card>
         <Table columns={columns} rows={list} emptyText="No customers yet" />
       </Card>

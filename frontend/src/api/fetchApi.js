@@ -9,22 +9,17 @@ async function request(path, options = {}) {
   if (res.status === 204) return null;
 
   const data = await res.json().catch(() => ({}));
-
-  if (!res.ok) {
-    throw new Error(data.detail || data.message || `Request failed (${res.status})`);
-  }
+  if (!res.ok) throw new Error(data.detail || data.message || 'Request failed');
 
   return data;
 }
 
 export const getProducts = () => request('/products');
-export const getProduct = (id) => request(`/products/${id}`);
 export const createProduct = (body) => request('/products', { method: 'POST', body: JSON.stringify(body) });
 export const updateProduct = (id, body) => request(`/products/${id}`, { method: 'PUT', body: JSON.stringify(body) });
 export const deleteProduct = (id) => request(`/products/${id}`, { method: 'DELETE' });
 
 export const getCustomers = () => request('/customers');
-export const getCustomer = (id) => request(`/customers/${id}`);
 export const createCustomer = (body) => request('/customers', { method: 'POST', body: JSON.stringify(body) });
 export const deleteCustomer = (id) => request(`/customers/${id}`, { method: 'DELETE' });
 

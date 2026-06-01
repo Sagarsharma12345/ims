@@ -1,20 +1,11 @@
-export default function Select({ label, error, children, className = '', wrapperClassName = '', bare = false, ...props }) {
-  const cls = `w-full rounded border border-slate-300 bg-white px-3 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 ${
-    error ? 'border-red-400' : ''
-  } ${className}`;
-
-  if (bare) {
-    return (
-      <select className={`h-10 ${cls}`} {...props}>
-        {children}
-      </select>
-    );
-  }
-
+export default function Select({ label, error, children, ...props }) {
   return (
-    <div className={`mb-3 ${wrapperClassName}`}>
+    <div className="mb-3">
       {label && <label className="mb-1 block text-sm font-medium">{label}</label>}
-      <select className={`py-2 ${cls}`} {...props}>
+      <select
+        className={`w-full rounded border px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-gray-300'}`}
+        {...props}
+      >
         {children}
       </select>
       {error && <p className="mt-1 text-xs text-red-600">{error}</p>}

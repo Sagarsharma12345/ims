@@ -1,5 +1,6 @@
 from flask import Flask
 from flask_cors import CORS
+from sqlalchemy import text
 
 from app.config import Config
 from app.controllers.customer_controller import customer_bp
@@ -14,7 +15,6 @@ def create_app():
     app.config.from_object(Config)
 
     CORS(app, origins=Config.cors_origin_list())
-
     db.init_app(app)
 
     app.register_blueprint(product_bp)
@@ -22,13 +22,13 @@ def create_app():
     app.register_blueprint(order_bp)
     app.register_blueprint(dashboard_bp)
 
-    @app.route("/")
-    def root():
-        return {"service": "inventory-api", "health": "/health"}
-
-    @app.route("/health")
-    def health():
-        return {"status": "ok"}
+    @app.route("/api")
+    def api_status():
+        try:
+            db.session.execute(text("SELECT 1"))
+            return {"status": "ok"}
+        except Exception:
+            return {"status": "error"}, 503
 
     with app.app_context():
         db.create_all()
