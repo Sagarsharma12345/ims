@@ -22,6 +22,10 @@ def create_app():
     app.register_blueprint(order_bp)
     app.register_blueprint(dashboard_bp)
 
+    @app.route("/")
+    def root():
+        return {"service": "inventory-api", "health": "/health"}
+
     @app.route("/health")
     def health():
         return {"status": "ok"}

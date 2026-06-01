@@ -8,7 +8,6 @@ load_dotenv(_env_path)
 
 
 def _normalize_db_url(url: str) -> str:
-    """Neon postgresql:// URL → SQLAlchemy + psycopg driver."""
     if url.startswith("postgresql://") and "+psycopg" not in url:
         return url.replace("postgresql://", "postgresql+psycopg://", 1)
     return url
