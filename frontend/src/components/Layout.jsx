@@ -14,7 +14,7 @@ export default function Layout() {
   return (
     <div className="min-h-screen lg:flex">
       <aside className="hidden w-52 border-r bg-white lg:block">
-        <div className="border-b px-4 py-4 font-semibold">Inventory</div>
+        <div className="border-b px-4 py-4 font-semibold">Management System</div>
         <nav className="p-2">
           {menu.map((m) => (
             <NavLink
@@ -33,7 +33,7 @@ export default function Layout() {
 
       <div className="flex-1">
         <header className="flex items-center justify-between border-b px-4 py-3 lg:hidden">
-          <span className="font-semibold">Inventory</span>
+          <span className="font-semibold">Management System</span>
           <button type="button" className="rounded border px-3 py-1 text-sm" onClick={() => setOpen(!open)}>
             Menu
           </button>
