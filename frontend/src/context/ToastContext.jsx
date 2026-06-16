@@ -32,7 +32,7 @@ export function ToastProvider({ children }) {
         {toasts.map((toast) => (
           <div
             key={toast.id}
-            className={`flex items-start justify-between gap-3 min-w-[240px] rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg animate-fade-in
+            className={`flex items-start justify-between gap-3 min-w-60 rounded-lg px-4 py-3 text-sm font-medium text-white shadow-lg animate-fade-in
               ${
                 toast.type === "error"
                   ? "bg-red-600"
