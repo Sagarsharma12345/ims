@@ -1,9 +1,11 @@
 export default function Select({ label, error, children, ...props }) {
   return (
     <div className="mb-3">
-      {label && <label className="mb-1 block text-sm font-medium">{label}</label>}
+      {label && (
+        <label className="mb-1 block text-sm font-medium">{label}</label>
+      )}
       <select
-        className={`w-full rounded border px-3 py-2 text-sm ${error ? 'border-red-400' : 'border-gray-300'}`}
+        className={`w-full rounded border px-3 py-2 text-sm ${error ? "border-red-400" : "border-gray-300"}`}
         {...props}
       >
         {children}

@@ -1,63 +1,38 @@
-import { useState } from 'react';
-import { NavLink, Outlet } from 'react-router-dom';
-
-const menu = [
-  { to: '/', label: 'Dashboard', end: true },
-  { to: '/products', label: 'Products' },
-  { to: '/customers', label: 'Customers' },
-  { to: '/orders', label: 'Orders' },
-];
+import { useState } from "react";
+import { Outlet } from "react-router-dom";
+import { Menu } from "lucide-react";
+import SideNav from "./SideNav";
 
 export default function Layout() {
-  const [open, setOpen] = useState(false);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   return (
-    <div className="min-h-screen lg:flex">
-      <aside className="hidden w-52 border-r bg-white lg:block">
-        <div className="border-b px-4 py-4 font-semibold">Management System</div>
-        <nav className="p-2">
-          {menu.map((m) => (
-            <NavLink
-              key={m.to}
-              to={m.to}
-              end={m.end}
-              className={({ isActive }) =>
-                `mb-1 block rounded px-3 py-2 text-sm ${isActive ? 'bg-indigo-600 text-white' : 'hover:bg-gray-100'}`
-              }
-            >
-              {m.label}
-            </NavLink>
-          ))}
-        </nav>
-      </aside>
+    <div className="min-h-screen bg-slate-50 lg:flex">
+      {/* Sidebar */}
+      <SideNav isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
 
       <div className="flex-1">
-        <header className="flex items-center justify-between border-b px-4 py-3 lg:hidden">
-          <span className="font-semibold">Management System</span>
-          <button type="button" className="rounded border px-3 py-1 text-sm" onClick={() => setOpen(!open)}>
-            Menu
-          </button>
+        <header className="sticky top-0 z-30 border-b border-slate-200 bg-white/80 backdrop-blur lg:hidden">
+          <div className="flex items-center justify-between px-4 py-3">
+            <div>
+              <h1 className="text-base font-semibold text-slate-900">
+                IMS Dashboard
+              </h1>
+              <p className="text-xs text-slate-500">
+                Inventory Management System
+              </p>
+            </div>
+
+            <button
+              onClick={() => setIsMenuOpen(true)}
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white shadow-sm"
+            >
+              <Menu size={18} />
+            </button>
+          </div>
         </header>
 
-        {open && (
-          <nav className="border-b p-2 lg:hidden">
-            {menu.map((m) => (
-              <NavLink
-                key={m.to}
-                to={m.to}
-                end={m.end}
-                onClick={() => setOpen(false)}
-                className={({ isActive }) =>
-                  `mb-1 block rounded px-3 py-2 text-sm ${isActive ? 'bg-indigo-600 text-white' : 'hover:bg-gray-100'}`
-                }
-              >
-                {m.label}
-              </NavLink>
-            ))}
-          </nav>
-        )}
-
-        <main className="p-4">
+        <main className="mx-auto w-full max-w-7xl p-4 sm:p-6">
           <Outlet />
         </main>
       </div>
