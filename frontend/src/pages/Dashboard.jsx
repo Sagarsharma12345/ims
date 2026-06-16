@@ -1,6 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { Package2, UsersRound, ShoppingCart, ArrowRight } from "lucide-react";
+import {
+  Package2,
+  UsersRound,
+  ShoppingCart,
+  ArrowRight,
+  LineChart,
+} from "lucide-react";
 import { getDashboard } from "../api/fetchApi";
 import Card from "../components/Card";
 import Loading from "../components/Loading";
@@ -103,23 +109,28 @@ export default function Dashboard() {
       {/* Chart + Low Stock */}
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title="Overview Statistics">
-          <div className="h-56">
-            <ResponsiveContainer width="100%" aspect={2}>
-              <LineChart data={data}>
-                <BarChart
-                  data={chartData}
-                  margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="name" /> <YAxis allowDecimals={false} />
-                  <Tooltip />
-                  <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={60}>
-                    {chartData.map((_, index) => (
-                      <Cell key={index} fill={chartColors[index]} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </LineChart>
+          <div
+            style={{
+              width: "100%",
+              height: "224px",
+              minWidth: "300px",
+            }}
+          >
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={chartData}
+                margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                <XAxis dataKey="name" />
+                <YAxis allowDecimals={false} />
+                <Tooltip />
+                <Bar dataKey="value" radius={[8, 8, 0, 0]} barSize={60}>
+                  {chartData.map((_, index) => (
+                    <Cell key={index} fill={chartColors[index]} />
+                  ))}
+                </Bar>
+              </BarChart>
             </ResponsiveContainer>
           </div>
         </Card>
