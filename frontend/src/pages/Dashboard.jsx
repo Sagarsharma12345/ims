@@ -5,7 +5,7 @@ import {
   UsersRound,
   ShoppingCart,
   ArrowRight,
-  LineChart,
+  AlertTriangle,
 } from "lucide-react";
 import { getDashboard } from "../api/fetchApi";
 import Card from "../components/Card";
@@ -25,18 +25,22 @@ import {
   CartesianGrid,
   Cell,
 } from "recharts";
+
 export default function Dashboard() {
   const { showToast } = useToast();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     getDashboard()
       .then(setData)
       .catch((e) => showToast(e.message, "error"))
       .finally(() => setLoading(false));
-  }, [showToast]);
+  }, []);
+
   if (loading) return <Loading />;
   if (!data) return null;
+
   const columns = [
     { key: "name", label: "Product" },
     { key: "sku", label: "SKU" },
@@ -47,6 +51,7 @@ export default function Dashboard() {
     },
     { key: "price", label: "Price", render: (row) => formatINR(row.price) },
   ];
+
   const stats = [
     {
       label: "Total Products",
@@ -69,27 +74,37 @@ export default function Dashboard() {
       iconBg: "bg-orange-50",
       iconColor: "text-orange-600",
     },
+    {
+      label: "Low Stock Products",
+      value: data.total_lowstock_products ?? 0,
+      icon: AlertTriangle,
+      iconBg: "bg-orange-50",
+      iconColor: "text-orange-600",
+    },
   ];
+
   const chartData = [
     { name: "Products", value: data.total_products ?? 0 },
     { name: "Customers", value: data.total_customers ?? 0 },
     { name: "Orders", value: data.total_orders ?? 0 },
   ];
+
   const chartColors = ["#3B82F6", "#10B981", "#F97316"];
+
   return (
     <div className="space-y-4">
       <PageHeader
         title="Dashboard"
-        subtitle="Overview of products, customers and orders"
+        subtitle="Overview of products, customers and orders."
       />
-      {/* Statistics Cards */}
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {stats.map((item) => {
           const Icon = item.icon;
           return (
             <div
               key={item.label}
-              className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm"
+              className="border border-slate-200 bg-white p-4 shadow-sm"
             >
               <div className="flex items-center justify-between">
                 <div>
@@ -106,16 +121,10 @@ export default function Dashboard() {
           );
         })}
       </div>
-      {/* Chart + Low Stock */}
+
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card title="Overview Statistics">
-          <div
-            style={{
-              width: "100%",
-              height: "224px",
-              minWidth: "300px",
-            }}
-          >
+          <div className="h-56 w-full min-w-75">
             <ResponsiveContainer width="100%" height="100%">
               <BarChart
                 data={chartData}
@@ -134,19 +143,18 @@ export default function Dashboard() {
             </ResponsiveContainer>
           </div>
         </Card>
-        <Card
-          title={`Low Stock Products (${data.low_stock_products?.length || 0})`}
-        >
+        <Card title={`Low Stock (${data.low_stock_products?.length || 0})`}>
           <div className="max-h-56 overflow-y-auto">
             <Table
               columns={columns}
               rows={data.low_stock_products || []}
               emptyText="No low stock products found"
+              page={1}
             />
           </div>
         </Card>
       </div>
-      {/* Footer */}
+
       <div className="flex justify-end">
         <Link
           to="/products"

@@ -6,14 +6,16 @@ async function request(path, options = {}) {
     ...options,
   });
 
-  if (res.status === 204) return null;
+  const json = await res.json().catch(() => ({}));
 
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.detail || data.message || "Request failed");
+  if (!res.ok || json.success === false) {
+    throw new Error(json.message || "Something went wrong");
+  }
 
-  return data;
+  return json.data;
 }
 
+// Products EndPoint
 export const getProducts = () => request("/products");
 export const createProduct = (body) =>
   request("/products", { method: "POST", body: JSON.stringify(body) });
@@ -22,12 +24,14 @@ export const updateProduct = (id, body) =>
 export const deleteProduct = (id) =>
   request(`/products/${id}`, { method: "DELETE" });
 
+// Customer Endpoint
 export const getCustomers = () => request("/customers");
 export const createCustomer = (body) =>
   request("/customers", { method: "POST", body: JSON.stringify(body) });
 export const deleteCustomer = (id) =>
   request(`/customers/${id}`, { method: "DELETE" });
 
+// Orders Enpoint
 export const getOrders = () => request("/orders");
 export const getOrder = (id) => request(`/orders/${id}`);
 export const createOrder = (body) =>
@@ -35,4 +39,5 @@ export const createOrder = (body) =>
 export const deleteOrder = (id) =>
   request(`/orders/${id}`, { method: "DELETE" });
 
+// Dashboard Endpoint
 export const getDashboard = () => request("/dashboard/summary");

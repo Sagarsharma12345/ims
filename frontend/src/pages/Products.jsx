@@ -11,37 +11,69 @@ import Input from "../components/Input";
 import Loading from "../components/Loading";
 import Modal from "../components/Modal";
 import PageHeader from "../components/PageHeader";
+import Pagination from "../components/Pagination";
+import SearchBox from "../components/SearchBox";
 import StatusBadge from "../components/StatusBadge";
 import Table from "../components/Table";
 import { useToast } from "../context/ToastContext";
 import { formatINR } from "../utils/format";
+import { filterSortPage } from "../utils/tableHelpers";
 import { Pencil, Plus, Trash2 } from "lucide-react";
 
-const empty = { name: "", sku: "", price: "", quantity_in_stock: "" };
+const emptyForm = { name: "", sku: "", price: "", quantity_in_stock: "" };
 
 export default function Products() {
   const { showToast } = useToast();
-  const [list, setList] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState(empty);
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState("name");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [page, setPage] = useState(1);
+  const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [editId, setEditId] = useState(null);
   const [modal, setModal] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const load = () =>
+  const load = () => {
+    setLoading(true);
     getProducts()
-      .then(setList)
+      .then(setProducts)
       .catch((e) => showToast(e.message, "error"))
       .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     load();
   }, []);
 
+  const table = filterSortPage(products, {
+    search,
+    keys: ["name", "sku"],
+    sortKey,
+    sortOrder,
+    page,
+  });
+
+  const onSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
+
+  const onSearch = (val) => {
+    setSearch(val);
+    setPage(1);
+  };
+
   const openAdd = () => {
     setEditId(null);
-    setForm(empty);
+    setForm(emptyForm);
     setErrors({});
     setModal(true);
   };
@@ -64,8 +96,9 @@ export default function Products() {
     if (!form.name.trim()) err.name = "Required";
     if (!form.sku.trim()) err.sku = "Required";
     if (!form.price || Number(form.price) <= 0) err.price = "Invalid";
-    if (form.quantity_in_stock === "" || Number(form.quantity_in_stock) < 0)
+    if (form.quantity_in_stock === "" || Number(form.quantity_in_stock) < 0) {
       err.stock = "Invalid";
+    }
     setErrors(err);
     if (Object.keys(err).length) return;
 
@@ -82,8 +115,8 @@ export default function Products() {
       setModal(false);
       showToast(editId ? "Updated" : "Saved");
       load();
-    } catch (ex) {
-      showToast(ex.message, "error");
+    } catch (e) {
+      showToast(e.message, "error");
     } finally {
       setSaving(false);
     }
@@ -102,33 +135,29 @@ export default function Products() {
       key: "actions",
       label: "Actions",
       render: (r) => (
-        <div className="flex items-center gap-2 whitespace-nowrap">
+        <div className="flex gap-2">
           <button
             type="button"
             onClick={() => openEdit(r)}
-            className="flex items-center gap-1 rounded-md border border-indigo-200 bg-indigo-50 px-3 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100"
+            className="rounded border border-indigo-200 bg-indigo-50 px-2 py-1 text-xs text-indigo-600"
           >
-            <Pencil size={14} />
-            Edit
+            <Pencil size={14} className="inline" /> Edit
           </button>
-
           <button
             type="button"
             onClick={async () => {
-              if (!confirm("Delete product?")) return;
-
+              if (!confirm("Delete?")) return;
               try {
                 await deleteProduct(r.id);
                 showToast("Deleted");
                 load();
-              } catch (ex) {
-                showToast(ex.message, "error");
+              } catch (e) {
+                showToast(e.message, "error");
               }
             }}
-            className="flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+            className="rounded border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-600"
           >
-            <Trash2 size={14} />
-            Delete
+            <Trash2 size={14} className="inline" /> Delete
           </button>
         </div>
       ),
@@ -143,20 +172,40 @@ export default function Products() {
         title="Products"
         action={
           <Button onClick={openAdd}>
-            <span className="flex items-center gap-2">
-              <Plus size={16} />
-              Add Product
-            </span>
+            <Plus size={16} className="inline" /> Add Product
           </Button>
         }
       />
+
       <Card>
-        <Table columns={columns} rows={list} emptyText="No products" />
+        <div className="border-b border-slate-100 p-3 sm:p-4">
+          <SearchBox
+            value={search}
+            onChange={onSearch}
+            placeholder="Search Name or SKU"
+          />
+        </div>
+
+        <Table
+          columns={columns}
+          rows={table.rows}
+          emptyText="No products"
+          sortKey={sortKey}
+          sortOrder={sortOrder}
+          onSort={onSort}
+          page={table.page}
+        />
+        <Pagination
+          page={table.page}
+          pages={table.pages}
+          total={table.total}
+          onPage={setPage}
+        />
       </Card>
 
       {modal && (
         <Modal
-          title={editId ? "Edit product" : "Add product"}
+          title={editId ? "Edit Product" : "Add Product"}
           onClose={() => setModal(false)}
         >
           <form onSubmit={save}>
@@ -172,12 +221,11 @@ export default function Products() {
               onChange={(e) => setForm({ ...form, sku: e.target.value })}
               error={errors.sku}
             />
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               <Input
-                label="Price (₹)"
+                label="Price"
                 type="number"
                 min="0"
-                step="1"
                 value={form.price}
                 onChange={(e) => setForm({ ...form, price: e.target.value })}
                 error={errors.price}

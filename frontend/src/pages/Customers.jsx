@@ -6,30 +6,62 @@ import Input from "../components/Input";
 import Loading from "../components/Loading";
 import Modal from "../components/Modal";
 import PageHeader from "../components/PageHeader";
+import Pagination from "../components/Pagination";
+import SearchBox from "../components/SearchBox";
 import Table from "../components/Table";
 import { useToast } from "../context/ToastContext";
+import { filterSortPage } from "../utils/tableHelpers";
 import { Trash2, UserPlus } from "lucide-react";
 
-const empty = { full_name: "", email: "", phone: "" };
+const emptyForm = { full_name: "", email: "", phone: "" };
 
 export default function Customers() {
   const { showToast } = useToast();
-  const [list, setList] = useState([]);
+  const [customers, setCustomers] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [form, setForm] = useState(empty);
+  const [search, setSearch] = useState("");
+  const [sortKey, setSortKey] = useState("full_name");
+  const [sortOrder, setSortOrder] = useState("asc");
+  const [page, setPage] = useState(1);
+  const [form, setForm] = useState(emptyForm);
   const [errors, setErrors] = useState({});
   const [modal, setModal] = useState(false);
   const [saving, setSaving] = useState(false);
 
-  const load = () =>
+  const load = () => {
+    setLoading(true);
     getCustomers()
-      .then(setList)
+      .then(setCustomers)
       .catch((e) => showToast(e.message, "error"))
       .finally(() => setLoading(false));
+  };
 
   useEffect(() => {
     load();
   }, []);
+
+  const table = filterSortPage(customers, {
+    search,
+    keys: ["full_name", "email", "phone"],
+    sortKey,
+    sortOrder,
+    page,
+  });
+
+  const onSort = (key) => {
+    if (sortKey === key) {
+      setSortOrder(sortOrder === "asc" ? "desc" : "asc");
+    } else {
+      setSortKey(key);
+      setSortOrder("asc");
+    }
+    setPage(1);
+  };
+
+  const onSearch = (val) => {
+    setSearch(val);
+    setPage(1);
+  };
 
   const save = async (e) => {
     e.preventDefault();
@@ -48,11 +80,11 @@ export default function Customers() {
         phone: form.phone.trim(),
       });
       setModal(false);
-      setForm(empty);
+      setForm(emptyForm);
       showToast("Saved");
       load();
-    } catch (ex) {
-      showToast(ex.message, "error");
+    } catch (e) {
+      showToast(e.message, "error");
     } finally {
       setSaving(false);
     }
@@ -69,20 +101,18 @@ export default function Customers() {
         <button
           type="button"
           onClick={async () => {
-            if (!confirm("Delete customer?")) return;
-
+            if (!confirm("Delete?")) return;
             try {
               await deleteCustomer(r.id);
               showToast("Deleted");
               load();
-            } catch (ex) {
-              showToast(ex.message, "error");
+            } catch (e) {
+              showToast(e.message, "error");
             }
           }}
-          className="flex items-center gap-1 rounded-md border border-red-200 bg-red-50 px-3 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
+          className="rounded border border-red-200 bg-red-50 px-2 py-1 text-xs text-red-600"
         >
-          <Trash2 size={14} />
-          Delete
+          <Trash2 size={14} className="inline" /> Delete
         </button>
       ),
     },
@@ -96,19 +126,39 @@ export default function Customers() {
         title="Customers"
         action={
           <Button onClick={() => setModal(true)}>
-            <span className="flex items-center gap-2">
-              <UserPlus size={16} />
-              Add Customer
-            </span>
+            <UserPlus size={16} className="inline" /> Add Customer
           </Button>
         }
       />
+
       <Card>
-        <Table columns={columns} rows={list} emptyText="No customers yet" />
+        <div className="border-b border-slate-100 p-3 sm:p-4">
+          <SearchBox
+            value={search}
+            onChange={onSearch}
+            placeholder="Search name, email, phone"
+          />
+        </div>
+
+        <Table
+          columns={columns}
+          rows={table.rows}
+          emptyText="No customers"
+          sortKey={sortKey}
+          sortOrder={sortOrder}
+          onSort={onSort}
+          page={table.page}
+        />
+        <Pagination
+          page={table.page}
+          pages={table.pages}
+          total={table.total}
+          onPage={setPage}
+        />
       </Card>
 
       {modal && (
-        <Modal title="Add customer" onClose={() => setModal(false)}>
+        <Modal title="Add Customer" onClose={() => setModal(false)}>
           <form onSubmit={save}>
             <Input
               label="Name"
